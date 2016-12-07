@@ -41,7 +41,9 @@ if __name__=='__main__':
         sys.exit()
     ar_tags = {}
     zumy_name = sys.argv[1]
-    ar_tags['ar1'] = 'ar_marker_' + sys.argv[2]
+    # ar_tags['ar1'] = 'ar_marker_' + sys.argv[2]
+    ar_tags['ar1'] = sys.argv[2]
+
     ar_tags['arZ'] = 'ar_marker_' + sys.argv[3]
 
     follow_ar_tag(zumy=zumy_name, ar_tags=ar_tags)

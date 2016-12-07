@@ -1,0 +1,22 @@
+image_width: 1280
+image_height: 720
+camera_name: head_camera
+autoexposure: True
+auto_white_balance: True
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [885.040496, 0, 677.409068, 0, 880.465391, 357.267758, 0, 0, 1]
+distortion_model: plumb_bob
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [0.102685, -0.112236, -0.001181, 0.006993, 0]
+rectification_matrix:
+  rows: 3
+  cols: 3
+  data: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+projection_matrix:
+  rows: 3
+  cols: 4
+  data: [902.875427, 0, 687.037109, 0, 0, 906.242126, 355.795169, 0, 0, 0, 1, 0]
