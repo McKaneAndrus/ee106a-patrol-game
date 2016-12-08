@@ -37,7 +37,7 @@ def compute_twist(rbt):
     rot = rbt[0:3,0:3]
     w, theta = eqf.find_omega_theta(rot)
     v = eqf.find_v(w, theta, rbt[0:3,3])
-    return v/10, w
+    return v, w
 
 if __name__=='__main__':
     rospy.init_node('ar_tags_subs')

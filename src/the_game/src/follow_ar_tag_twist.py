@@ -22,6 +22,10 @@ def follow_ar_tag(zumy, ar_tags):
         try:
             (trans, rot) = listener.lookupTransform(ar_tags['arZ'], ar_tags['ar1'], rospy.Time(0))
         except:
+            V = Vector3(0,0,0)
+            W = Vector3(0,0,0)
+            twist = Twist(V,W)
+            zumy_vel.publish(twist)
             continue
         
         # YOUR CODE HERE
@@ -29,7 +33,13 @@ def follow_ar_tag(zumy, ar_tags):
         #  the translation and rotation between arZ and ar1
         #  Then publish it to the zumy
         v, w = ats.compute_twist(ats.return_rbt(trans,rot))
-        V = Vector3(v[0],v[1],v[2])
+        #if w[2] < 0.01*np.pi:
+        #    V = Vector3(v[0],v[1],v[2])
+        #else:
+        #    V = Vector3(v[0]*0,v[1]*0,v[2]*0)
+        V = Vector3(v[0]*0,v[1]*0,v[2]*0)
+        print v[0], v[1], v[2]
+        print w[0], w[1], w[2]
         W = Vector3(w[0],w[1],w[2])
         twist = Twist(V,W)
         zumy_vel.publish(twist)
