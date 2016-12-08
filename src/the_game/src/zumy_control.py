@@ -20,7 +20,7 @@ def go_to_waypoint(zumy, ar_tags, waypoint):
 
     listener = tf.TransformListener() 
     zumy_vel = rospy.Publisher('%s/cmd_vel' % zumy, Twist, queue_size=2)
-    rate = rospy.Rate(1)
+    rate = rospy.Rate(100)
     
     is_aligned = False
     while not rospy.is_shutdown():
