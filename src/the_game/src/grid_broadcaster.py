@@ -20,7 +20,7 @@ step_y = 1
 def construct_grid(ar_tags):
 
     listener = tf.TransformListener()
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(1000)
     pub = rospy.Publisher('step_messages', Vector2, queue_size=10)
 
     while not rospy.is_shutdown():

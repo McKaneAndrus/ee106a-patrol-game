@@ -16,26 +16,32 @@ grid_y = 6
 step_x = 1
 step_y = 1
 
-def go_to_waypoint(zumy, ar_tags, destination):
+def go_to_waypoint(zumy, ar_tags, waypoint):
 
+    listener = tf.TransformListener() 
     zumy_vel = rospy.Publisher('%s/cmd_vel' % zumy, Twist, queue_size=2)
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(1)
     
+    is_aligned = False
     while not rospy.is_shutdown():
         try:
-            (trans_ab, rot_ab) = listener.lookupTransform(ar_tags['arZ'], ar_tags['origin'], rospy.Time(0))
-        except:
+            (trans_ab, rot_ab) = listener.lookupTransform(ar_tags['player'], ar_tags['origin'], rospy.Time(0))
+        except Exception as e:
+            print e
             V = Vector3(0,0,0)
             W = Vector3(0,0,0)
             twist = Twist(V,W)
             zumy_vel.publish(twist)
             continue
 
-        trans_bc = np.array([step_x*destination[0], step_y*destination[1], 0])
-        rot_bc = np.array([0, 0, 0, 1])
+        trans_bc = (step_x*waypoint[0], step_y*waypoint[1], 0.0)
+        rot_bc = (0.0, 0.0, 1.0, 0.0)
         
         g_ab = ats.return_rbt(trans_ab,rot_ab)
         g_bc = ats.return_rbt(trans_bc,rot_bc)
+
+        #print g_ab, g_bc
+
         g_ac = np.dot(g_ab, g_bc)
         # YOUR CODE HERE
         #  The code should compute the twist given 
@@ -43,10 +49,11 @@ def go_to_waypoint(zumy, ar_tags, destination):
         #  Then publish it to the zumy
         v, w = ats.compute_twist(g_ac)
 
-        if abs(w[2]) < 0.05*np.pi:
-           V = Vector3(v[0],v[1],v[2])
+        if abs(w[2]) < 0.01*np.pi or is_aligned:
+            V = Vector3( (v[0]/abs(v[0])) * min(abs(v[0]), 0.15),v[1],v[2])
+            is_aligned = True
         else:
-           V = Vector3(v[0]*0,v[1]*0,v[2]*0)
+            V = Vector3(v[0]*0,v[1]*0,v[2]*0)
 
         # V = Vector3(v[0],v[1],v[2])
         W = Vector3(w[0],w[1],w[2])
@@ -56,7 +63,7 @@ def go_to_waypoint(zumy, ar_tags, destination):
 def get_coord(ar_tags):
 
     listener = tf.TransformListener() 
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(1)
 
     done = False
     while not done:
@@ -74,8 +81,8 @@ def step_callback(message):
 
     #Print the contents of the message to the console
     global step_x, step_y
-    step_x, step_y = message[0], message[1]
-    print("step_x: %s, step_y: %s" % (step_x, step_y))
+    step_x, step_y = message.x, message.y
+    #print("step_x: %s, step_y: %s" % (step_x, step_y))
 
   
 if __name__=='__main__':
@@ -88,11 +95,11 @@ if __name__=='__main__':
     ar_tags['origin'] = 'ar_marker_' + sys.argv[2]
     # ar_tags['reference'] = 'ar_marker_' + sys.argv[3]
     ar_tags['player'] = 'ar_marker_' + sys.argv[3]
-    destination = (sys.argv[4], sys.argv[5])
+    waypoint = (float(sys.argv[4]), float(sys.argv[5]))
     rospy.Subscriber("step_messages", Vector2, step_callback)
-    
+
     try:
-        go_to_waypoint(zumy_name, ar_tags, destination)
+        go_to_waypoint(zumy_name, ar_tags, waypoint)
     except rospy.ROSInterruptException: pass
     #follow_ar_tag(zumy=zumy_name, ar_tags=ar_tags)
     #step_x, step_y = construct_grid(ar_tags)
