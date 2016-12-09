@@ -12,7 +12,7 @@ from geometry_msgs.msg import Transform, Vector3, Twist
 from the_game.msg import Vector2
 
 listener = None
-grid_x = 9
+grid_x = 4#9
 grid_y = 6
 # step_x = 1
 # step_y = 1

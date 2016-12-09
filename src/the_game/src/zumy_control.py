@@ -20,12 +20,34 @@ def go_to_waypoint(zumy, ar_tags, waypoint):
 
     listener = tf.TransformListener() 
     zumy_vel = rospy.Publisher('%s/cmd_vel' % zumy, Twist, queue_size=2)
-    rate = rospy.Rate(100)
-    
+    rate = rospy.Rate(1000)
+
+    angle = 0
+    x_curr, y_curr = get_coord(ar_tags)
+    print x_curr, y_curr
+    x_offset, y_offset = waypoint[0] - x_curr, waypoint[1] - y_curr
+
+    if (x_offset != 0) and (y_offset != 0):
+        print(zumy + ' and waypoint are not adjacent!')
+        return 0
+
+    if x_offset != 0:
+         if x_offset > 0:
+             angle = 0.0 # East
+         else:
+             angle = np.pi # West
+    else:
+         if y_offset > 0:
+             angle = np.pi/2 # North
+         else:
+             angle = 3*np.pi/2 # South
+     
     is_aligned = False
-    while not rospy.is_shutdown():
+    at_waypoint = False
+    while not rospy.is_shutdown() and not at_waypoint:
         try:
             (trans_ab, rot_ab) = listener.lookupTransform(ar_tags['player'], ar_tags['origin'], rospy.Time(0))
+            (trans_ba, rot_ba) = listener.lookupTransform(ar_tags['origin'], ar_tags['player'], rospy.Time(0))
         except Exception as e:
             print e
             V = Vector3(0,0,0)
@@ -33,32 +55,40 @@ def go_to_waypoint(zumy, ar_tags, waypoint):
             twist = Twist(V,W)
             zumy_vel.publish(twist)
             continue
-
-        trans_bc = (step_x*waypoint[0], step_y*waypoint[1], 0.0)
-        rot_bc = (0.0, 0.0, 1.0, 0.0)
-        
+        x_curr = trans_ba[0]/step_x
+        y_curr = trans_ba[1]/step_y
+        #print x_curr, y_curr, step_x, step_y
+        trans_bc = np.array([step_x*waypoint[0], step_y*waypoint[1], 0.0])
+        omega_bc = np.array([0.0, 0.0, 1.0])
         g_ab = ats.return_rbt(trans_ab,rot_ab)
-        g_bc = ats.return_rbt(trans_bc,rot_bc)
+        if is_aligned:
+            zumy_vec = trans_bc - trans_ba
+            angle = np.arctan2([zumy_vec[1]], [zumy_vec[0]])
+        g_bc = eqf.create_rbt(omega_bc, angle, trans_bc)
 
         #print g_ab, g_bc
 
         g_ac = np.dot(g_ab, g_bc)
-        # YOUR CODE HERE
-        #  The code should compute the twist given 
-        #  the translation and rotation between arZ and ar1
-        #  Then publish it to the zumy
         v, w = ats.compute_twist(g_ac)
 
-        if abs(w[2]) < 0.01*np.pi or is_aligned:
-            V = Vector3( (v[0]/abs(v[0])) * min(abs(v[0]), 0.15),v[1],v[2])
+        if abs(w[2]) < 0.01*np.pi:
             is_aligned = True
-        else:
-            V = Vector3(v[0]*0,v[1]*0,v[2]*0)
-
-        # V = Vector3(v[0],v[1],v[2])
-        W = Vector3(w[0],w[1],w[2])
+        
+        if abs(waypoint[0] - x_curr) < 0.1 and abs(waypoint[1] - y_curr) < 0.1:
+            V = Vector3(0,0,0)
+            W = Vector3(0,0,0)
+            at_waypoint = True
+        elif is_aligned:
+            V = Vector3( (v[0]/abs(v[0])) * min(abs(v[0]), 0.07),v[1],v[2])
+            W = Vector3(w[0],w[1],1.6*w[2])
+        else: # Rotate until aligned
+            V = Vector3(0,0,0)
+            W = Vector3(w[0],w[1],w[2])
+        print angle
         twist = Twist(V,W)
         zumy_vel.publish(twist)
+
+    return 1
 
 def get_coord(ar_tags):
 
@@ -105,4 +135,4 @@ if __name__=='__main__':
     #step_x, step_y = construct_grid(ar_tags)
     #print("step sizes: %s, %s" % (step_x, step_y))
     #print(get_coord(ar_tags))
-    rospy.spin()
+    #rospy.spin()
