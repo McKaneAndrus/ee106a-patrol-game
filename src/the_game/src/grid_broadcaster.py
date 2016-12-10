@@ -12,7 +12,7 @@ from geometry_msgs.msg import Transform, Vector3, Twist
 from the_game.msg import Vector2
 
 listener = None
-grid_x = 4#9
+grid_x = 9
 grid_y = 6
 # step_x = 1
 # step_y = 1
@@ -41,6 +41,12 @@ def construct_grid(ar_tags):
 
 if __name__ == '__main__':
     rospy.init_node('grid_broadcaster')
+    if len(sys.argv) == 3:
+        grid_x = sys.argv[1]
+        grid_y = sys.argv[2]
+    elif len(sys.argv) != 1 and len(sys.argv) != 3:
+        print('Use: grid_broadcaster.py [ grid_x ] [ grid_y ]')
+        sys.exit()
     ar_tags = {}
     ar_tags['origin'] = 'ar_marker_0'
     ar_tags['reference'] = 'ar_marker_1'
@@ -48,20 +54,3 @@ if __name__ == '__main__':
         construct_grid(ar_tags)
     except rospy.ROSInterruptException: 
         pass
-
-#    br = tf.TransformBroadcaster()
-#    rate = rospy.Rate(10.0)
-#    while not rospy.is_shutdown():
-#        step_x, step_y = construct_grid(ar_tags)
-#        for i in range(0, grid_x + 1):
-#             for j in range(0, grid_y + 1):
-#                 for w in [(0,'E'), (np.pi/2, 'N'), (np.pi, 'W'), (3*np.pi/2, "S")]:
-#                     if (i + j == 0) or (i + j == 15):
-#                         continue
-#                     name = "{}_{}_{}".format(i,j,w[1])
-#                     br.sendTransform((i*step_x, j*step_y, 0.0),
-#                                      tf.transformations.quaternion_from_euler(0, 0, w[0]),
-#                                      rospy.Time.now(),
-#                                      name,
-#                                      ar_tags['origin'])
-#         rate.sleep()
