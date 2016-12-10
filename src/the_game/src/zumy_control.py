@@ -92,6 +92,7 @@ def get_coord(ar_tags):
 def step_callback(message):
 
     # Update step_sizes from grid_broadcaster
+    global step_x, step_y
     step_x, step_y = message.x, message.y
     #print("step_x: %s, step_y: %s" % (step_x, step_y))
 
