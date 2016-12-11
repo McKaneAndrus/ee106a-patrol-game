@@ -42,8 +42,8 @@ def construct_grid(ar_tags):
 if __name__ == '__main__':
     rospy.init_node('grid_broadcaster')
     if len(sys.argv) == 3:
-        grid_x = sys.argv[1]
-        grid_y = sys.argv[2]
+        grid_x = int(sys.argv[1])
+        grid_y = int(sys.argv[2])
     elif len(sys.argv) != 1 and len(sys.argv) != 3:
         print('Use: grid_broadcaster.py [ grid_x ] [ grid_y ]')
         sys.exit()
