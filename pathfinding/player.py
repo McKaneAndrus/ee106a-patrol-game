@@ -8,7 +8,7 @@ class Player:
         self.goal_state = goal_state
         self.patrol_states = patrol_states
         self.true_map = game_map
-        self.game_map = buildGameMap(game_map)
+        self.game_map = self.buildGameMap()
 
     def buildGameMap(self):
         self.game_map = self.true_map
@@ -32,14 +32,14 @@ class Player:
         for action in [Actions.NORTH, Actions.SOUTH, Actions.EAST, Actions.WEST]:
             dx, dy = toVector(action)
             x, y = state[0]+dx, state[1]+dy
-            if not self.game_map[x][y]:
+            if self.game_map[x][y] == 0:
                 actions.append(action)
         return actions
 
     def getResult(self, state, action):
         dx, dy = toVector(action)
         x, y = state[0]+dx, state[1]+dy
-        if self.game_map[x][y]:
+        if self.game_map[x][y] > 0:
             print("Invalid state!")
             return state
         return (x, y)
@@ -58,7 +58,7 @@ class Player:
         for action in actions:
             dx, dy = toVector(action)
             x, y = state[0]+dx, state[1]+dy
-            if self.game_map[x][y]: 
+            if self.game_map[x][y] > 0: 
                 return float('inf')
             cost += 1
         return cost
@@ -66,7 +66,8 @@ class Player:
     def getNextStep(self):
         self.buildGameMap()
         path = aStarSearch(self)
-        if len(path) == 0:
+        if len(path) == 1:
+            print("Nowhere to go")
             return path[0]
         return path[1]
 
