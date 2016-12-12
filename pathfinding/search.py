@@ -17,7 +17,7 @@ def aStarSearch(problem):
     queue=util.PriorityQueueWithFunction(cost)
     currItem=(start,[],[start])
     shortest_expansion = {start:manhattanHeuristic(start,problem)}
-    while not problem.goalTest(currItem[0]) and not queue.isEmpty():
+    while not problem.goalTest(currItem[0]):
         for action in problem.getActions(currItem[0]):
             newState = problem.getResult(currItem[0],action)
             newItem = (newState, currItem[1]+[action], currItem[2]+[newState]) 
@@ -30,8 +30,7 @@ def aStarSearch(problem):
                 shortest_expansion[newState] = cost(newItem)
             if newState not in currItem[2]:
                 queue.push(newItem)
+        if queue.isEmpty():
+            return [start]
         currItem=queue.pop()
-    if problem.goalTest(currItem[0]):
-        return currItem[2]
-    else:
-        return [start]
+    return currItem[2]
