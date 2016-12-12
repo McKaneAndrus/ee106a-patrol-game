@@ -3,11 +3,10 @@ from search import aStarSearch
 
 class Player:
     
-    def __init__(self, game_map, player_start, goal_state, patrol_states, costFn=lambda x: 1):
+    def __init__(self, game_map, player_start, goal_state, patrol_states):
         self.player_start = player_start
         self.goal_state = goal_state
         self.patrol_states = patrol_states
-        self.costFn = costFn
         self.true_map = game_map
         self.game_map = buildGameMap(game_map)
 
@@ -49,7 +48,7 @@ class Player:
         nextState = self.getResult(state, action)
         if nextState == state:
             return 0
-        return self.costFn(nextState)
+        return 1
 
     def getCostOfActions(self, actions):
         if actions == None: 
@@ -61,7 +60,7 @@ class Player:
             x, y = state[0]+dx, state[1]+dy
             if self.game_map[x][y]: 
                 return float('inf')
-            cost += self.costFn((x, y))
+            cost += 1
         return cost
 
     def getNextStep(self):
@@ -70,3 +69,8 @@ class Player:
         if len(path) == 0:
             return path[0]
         return path[1]
+
+    def update(self, player_state, patrol_states):
+        self.player_start = player_state
+        self.patrol_states = patrol_states
+        self.buildGameMap()
