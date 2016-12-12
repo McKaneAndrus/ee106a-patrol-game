@@ -1,3 +1,6 @@
+import util
+from search import aStarSearch
+
 class Actions:
     NORTH = (0, 1)
     SOUTH = (0, -1)
@@ -8,7 +11,7 @@ class Actions:
 def toVector(direction):
     return direction[0], direction[1]
 
-class playerProblem:
+class Player:
     
     def __init__(self, game_map, player_start, goal_state, patrol_starts, costFn=lambda x: 1):
         self.game_map = game_map
@@ -59,3 +62,6 @@ class playerProblem:
                 return float('inf')
             cost += self.costFn((x, y))
         return cost
+
+    def getNextStep(self):
+        return aStarSearch(self)[1]

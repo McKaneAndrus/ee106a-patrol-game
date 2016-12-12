@@ -1,11 +1,9 @@
-from search import aStarSearch
-from problems import playerProblem, patrolProblem
+from player import Player
 
-game_map = [[1, 1, 1, 1, 1],[1, 0, 0, 0, 1],[1, 0, 1, 1, 1],[1, 0, 0, 0, 1],[1, 1, 1, 1, 1]]
+game_map = [[1, 1, 1, 1, 1],[1, 0, 0, 0, 1],[1, 0, 2, 1, 1],[1, 0, 0, 0, 1],[1, 1, 1, 1, 1]]
 start = (1, 2)
 goal = (3, 2)
-problem = playerProblem(game_map, start, goal, [])
+player = Player(game_map, start, goal, [])
 
-steps = aStarSearch(problem)
-
-print(steps)
+next_step = player.getNextStep()
+print(next_step)
