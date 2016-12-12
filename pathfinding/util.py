@@ -11,6 +11,7 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
+# Includes additions by Kevin Fan
 
 import sys
 import inspect
@@ -651,3 +652,14 @@ def unmutePrint():
     sys.stdout = _ORIGINAL_STDOUT
     #sys.stderr = _ORIGINAL_STDERR
 
+# Code below is added by Kevin Fan
+
+class Actions:
+    NORTH = (0, 1)
+    SOUTH = (0, -1)
+    EAST = (1, 0)
+    WEST = (-1, 0)
+    HOLD = (0, 0)
+
+def toVector(direction):
+    return direction[0], direction[1]

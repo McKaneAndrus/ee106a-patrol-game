@@ -1,24 +1,26 @@
-import util
+from util import Actions, toVector
 from search import aStarSearch
-
-class Actions:
-    NORTH = (0, 1)
-    SOUTH = (0, -1)
-    EAST = (1, 0)
-    WEST = (-1, 0)
-    HOLD = (0, 0)
-
-def toVector(direction):
-    return direction[0], direction[1]
 
 class Player:
     
-    def __init__(self, game_map, player_start, goal_state, patrol_starts, costFn=lambda x: 1):
-        self.game_map = game_map
+    def __init__(self, game_map, player_start, goal_state, patrol_states, costFn=lambda x: 1):
         self.player_start = player_start
         self.goal_state = goal_state
-        self.patrol_starts = patrol_starts
+        self.patrol_states = patrol_states
         self.costFn = costFn
+        self.true_map = game_map
+        self.game_map = buildGameMap(game_map)
+
+    def buildGameMap(self):
+        self.game_map = self.true_map
+        for patrol in self.patrol_states:
+            x, y = patrol[0]
+            dx, dy = patrol[1]
+            self.game_map[x][y] = 2
+            while not self.game_map[x+dx][y+dy]:
+                x += dx
+                y += dy
+                self.game_map[x][y] = 3
 
     def getStartState(self):
         return self.player_start
@@ -57,11 +59,14 @@ class Player:
         for action in actions:
             dx, dy = toVector(action)
             x, y = state[0]+dx, state[1]+dy
-            # Check figure out the next state and see whether its' legal
             if self.game_map[x][y]: 
                 return float('inf')
             cost += self.costFn((x, y))
         return cost
 
     def getNextStep(self):
-        return aStarSearch(self)[1]
+        self.buildGameMap()
+        path = aStarSearch(self)
+        if len(path) == 0:
+            return path[0]
+        return path[1]
