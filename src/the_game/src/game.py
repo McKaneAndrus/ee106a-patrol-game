@@ -6,21 +6,24 @@ import math
 import numpy as np
 from tf2_msgs.msg import TFMessage
 from geometry_msgs.msg import Transform, Vector3, Twist
-from the_game.msg import Vector2
+from ar_track_alvar_msgs.msg import AlvarMarkers, AlvarMarker
+from the_game.msg import Vector2, Update
 import exp_quat_func as eqf
 import ar_tag_subs as ats
 import time
 
-global last_pulse, observations, game_over
+
+
+global last_pulse, observations, game_over, player_pos
 
 
 
 def player_pos_callback(msg):
-	global last_pulse
-	if not last_pulse:
-		next_pulse = time.time() + 5
-	elif time.time() > next_pulse:
+	global next_pulse, player_pos
+	player_pos = msg
+	if not next_pulse or time.time() > next_pulse:
 		radar.publish(msg)
+		next_pulse = time.time() + 5
 
 def pos_callback(msg, patrol_pub):
 	vectors = []
@@ -32,12 +35,15 @@ def pos_callback(msg, patrol_pub):
 	patrol_pub.publish(vectors)
 
 def seen_callback(msg, patrol):
-	observations[i] += [msg]
-	if len(observations) > 100:
-		if sum(observations) > 50:
-			game_state.publish(False)
+	global observations
+	if len(msg.markers) > 0:
+		radar.publish(player_pos)
+	observations[patrol] += [len(msg.markers) > 0]
+	if len(observations[patrol]) > 100:
+		if sum(observations[patrol]) > 50:
+			game_state.publish(True)
 		else:
-			observations[i] = []
+			observations[patrol] = []
 
 if __name__=='__main__':
     if len(sys.argv) < 5 or len(sys.argv) % 2 != 1:
@@ -77,4 +83,5 @@ if __name__=='__main__':
 	
 	for i in range(len(patrols)):
 		observations += [[]]
-		rospy.Subscriber(patrols[i] + "/seen", Bool, lambda msg: seen_callback(msg, i))
+		rospy.Subscriber(patrols[i] + "/ar_pose_marker", AlvarMarkers, lambda msg: seen_callback(msg, i))
+	rospy.spin()

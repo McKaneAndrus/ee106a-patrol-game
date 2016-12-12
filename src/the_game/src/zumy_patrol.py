@@ -47,10 +47,12 @@ def nearby_callback(msg):
 	for vector in msg.Vectors:
 		grid_map[vector.x][vector.y] = vector.z
 	invalid_path = True
+	print grid_map
 
 def radar_callback(msg):
 	global player_position
 	player_position = (msg.x, msg.y)
+	invalid_path = True
 
 
 if __name__=='__main__':
