@@ -11,8 +11,8 @@ import exp_quat_func as eqf
 import ar_tag_subs as ats
 
 listener = None
-step_x = 1
-step_y = 1
+step_x = .13 
+step_y = .13
 
 def go_to_waypoint(zumy, ar_tags, waypoint):
 
@@ -38,7 +38,7 @@ def go_to_waypoint(zumy, ar_tags, waypoint):
 
         x_curr = trans_ba[0]/step_x
         y_curr = trans_ba[1]/step_y
-        #print x_curr, y_curr, step_x, step_y
+        print trans_ba
 
         g_ab = ats.return_rbt(trans_ab,rot_ab)
 
@@ -47,8 +47,6 @@ def go_to_waypoint(zumy, ar_tags, waypoint):
         zumy_vec = trans_bc - trans_ba
         angle = np.arctan2([zumy_vec[1]], [zumy_vec[0]])
         g_bc = eqf.create_rbt(omega_bc, angle, trans_bc)
-
-        #print g_ab, g_bc
 
         g_ac = np.dot(g_ab, g_bc)
         v, w = ats.compute_twist(g_ac)
@@ -66,8 +64,9 @@ def go_to_waypoint(zumy, ar_tags, waypoint):
         else:
             V = Vector3( (v[0]/abs(v[0])) * min(abs(v[0]), 0.07),v[1],v[2])
             W = Vector3(w[0],w[1],1.6*w[2]) # scalar coeff to speed up response
-        print angle
+        #print angle
         twist = Twist(V,W)
+        print twist
         zumy_vel.publish(twist)
 
     return 1
@@ -94,8 +93,6 @@ def step_callback(message):
     # Update step_sizes from grid_broadcaster
     global step_x, step_y
     step_x, step_y = message.x, message.y
-    #print("step_x: %s, step_y: %s" % (step_x, step_y))
-
   
 if __name__=='__main__':
     rospy.init_node('zumy_control')
@@ -107,7 +104,7 @@ if __name__=='__main__':
     ar_tags['player'] = 'ar_marker_' + sys.argv[2]
     ar_tags['origin'] = 'ar_marker_0'
     waypoint = (float(sys.argv[3]), float(sys.argv[4]))
-    rospy.Subscriber("step_messages", Vector2, step_callback)
+    #rospy.Subscriber("step_messages", Vector2, step_callback)
 
     try:
         go_to_waypoint(zumy_name, ar_tags, waypoint)
