@@ -1,1 +1,1 @@
-Vector3[] vectors
+geometry_msgs/Vector3[] vectors

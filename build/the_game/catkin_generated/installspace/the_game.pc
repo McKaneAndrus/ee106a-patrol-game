@@ -1,0 +1,8 @@
+prefix=/home/cc/ee106a/fa16/class/ee106a-act/ros_workspaces/ee106a-patrol-game/install
+
+Name: the_game
+Description: Description of the_game
+Version: 0.0.0
+Cflags: -I/home/cc/ee106a/fa16/class/ee106a-act/ros_workspaces/ee106a-patrol-game/install/include
+Libs: -L/home/cc/ee106a/fa16/class/ee106a-act/ros_workspaces/ee106a-patrol-game/install/lib 
+Requires: roscpp rospy sensor_msgs std_msgs geometry_msgs message_runtime

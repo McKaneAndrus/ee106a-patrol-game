@@ -1,6 +1,10 @@
 <launch>
   <arg name="mname" default="zumyX" />
   
+  <node ns="$(arg mname)" name="base_station" pkg="odroid_machine" type="estop.py" output="screen">
+    <param name="mname" value="$(arg mname)"/>
+  </node>
+
   <include file="$(find odroid_machine)/launch/odroid_machine.launch">
     <arg name="mname" value="$(arg mname)" />
   </include>
@@ -18,7 +22,7 @@
   <param name="autoexposure" value="True" />
   <param name="camera_frame_id" value="usb_cam_$(arg mname)" />
   <param name="io_method" value="mmap" />
-  <param name="camera_info_url" value="file:////home/zumy/lifecam.yml" />
+  <param name="camera_info_url" value="file:///home/zumy/lifecam.yml" />
 </node> 
 
 <arg name="marker_size" default="5.54" />
